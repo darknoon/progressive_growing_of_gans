@@ -31,7 +31,8 @@ if 1:
 
     # Dataset selection.
 
-    run_desc += '-celebahq';   dataset = dict(tfrecord_dir='celebahq'); train.update(mirror_augment=True)
+    run_desc += '-petals';   dataset = dict(tfrecord_dir='petals-256'); train.update(mirror_augment=True)
+    # run_desc += '-celebahq';   dataset = dict(tfrecord_dir='celebahq'); train.update(mirror_augment=True)
     #run_desc += '-celeba';     dataset = dict(tfrecord_dir='celeba'); train.update(mirror_augment=True)
     #run_desc += '-cifar10';    dataset = dict(tfrecord_dir='cifar10')
     #run_desc += '-cifar100';   dataset = dict(tfrecord_dir='cifar100')
