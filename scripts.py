@@ -42,6 +42,31 @@ def generate_fake_images(run_id, snapshot=None, grid_size=[1,1], num_pngs=1, ima
         misc.save_image_grid(images, os.path.join(result_subdir, '%s%06d.png' % (png_prefix, png_idx)), [0,255], grid_size)
     open(os.path.join(result_subdir, '_done.txt'), 'wt').close()
 
+
+def generate_fake_interpolates(run_id, snapshot=None, grid_size=[1,1], num_pngs=1, image_shrink=1, png_prefix=None, random_seed=1000, minibatch_size=8):
+    network_pkl = misc.locate_network_pkl(run_id, snapshot)
+    if png_prefix is None:
+        png_prefix = misc.get_id_string_for_network_pkl(network_pkl) + '-'
+    random_state = np.random.RandomState(random_seed)
+
+    print('Loading network from "%s"...' % network_pkl)
+    G, D, Gs = misc.load_network_pkl(run_id, snapshot)
+
+    result_subdir = misc.create_result_subdir(config.result_dir, config.run_desc)
+    for png_idx in range(num_pngs):
+        print('Generating png %d / %d...' % (png_idx, num_pngs))
+        latent = G.input_shape[1:]
+        # Generate a 2x2 grid that will form the corners
+        corners_grid = random_state.randn(2, 2, *latent).astype(np.float32)
+
+        # Zoom it up to target grid size
+        latents = scipy.ndimage.zoom(corners_grid, (*grid_size, 1))
+
+        labels = np.zeros([latents.shape[0], 0], np.float32)
+        images = Gs.run(latents, labels, minibatch_size=minibatch_size, num_gpus=config.num_gpus, out_mul=127.5, out_add=127.5, out_shrink=image_shrink, out_dtype=np.uint8)
+        misc.save_image_grid(images, os.path.join(result_subdir, '%s%06d.png' % (png_prefix, png_idx)), [0,255], grid_size)
+    open(os.path.join(result_subdir, '_done.txt'), 'wt').close()
+
 #----------------------------------------------------------------------------
 # Generate MP4 video of random interpolations using a previously trained network.
 # To run, uncomment the appropriate line in config.py and launch train.py.
