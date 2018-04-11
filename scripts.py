@@ -52,15 +52,25 @@ def generate_fake_interpolates(run_id, snapshot=None, grid_size=[1,1], num_pngs=
     print('Loading network from "%s"...' % network_pkl)
     G, D, Gs = misc.load_network_pkl(run_id, snapshot)
 
+    spread = 0.1
+
     result_subdir = misc.create_result_subdir(config.result_dir, config.run_desc)
     for png_idx in range(num_pngs):
         print('Generating png %d / %d...' % (png_idx, num_pngs))
         latent = G.input_shape[1:]
         # Generate a 2x2 grid that will form the corners
         corners_grid = random_state.randn(2, 2, *latent).astype(np.float32)
+        print('corners_grid.shape:', corners_grid.shape)
+
+        # Corners are offsets from the center point
+        center_point = random_state.randn(1, 1, *latent)
 
         # Zoom it up to target grid size
-        latents = scipy.ndimage.zoom(corners_grid, (*grid_size, 1))
+        latents_grid = center_point + spread * scipy.ndimage.zoom(corners_grid, (grid_size[0] / 2.0, grid_size[1] / 2.0, 1))
+        print('latents_grid.shape:', latents_grid.shape)
+        # Reshape to be just a list again
+        latents = latents_grid.reshape([np.prod(grid_size), *latent])
+        print('latents.shape:', latents.shape)
 
         labels = np.zeros([latents.shape[0], 0], np.float32)
         images = Gs.run(latents, labels, minibatch_size=minibatch_size, num_gpus=config.num_gpus, out_mul=127.5, out_add=127.5, out_shrink=image_shrink, out_dtype=np.uint8)
