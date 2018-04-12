@@ -43,7 +43,7 @@ def generate_fake_images(run_id, snapshot=None, grid_size=[1,1], num_pngs=1, ima
     open(os.path.join(result_subdir, '_done.txt'), 'wt').close()
 
 
-def generate_fake_interpolates(run_id, snapshot=None, grid_size=[1,1], num_pngs=1, image_shrink=1, png_prefix=None, random_seed=1000, minibatch_size=8):
+def generate_fake_interpolates(run_id, snapshot=None, grid_size=[1,1], spread = 0.5, num_pngs=1, image_shrink=1, png_prefix=None, random_seed=1000, minibatch_size=8):
     network_pkl = misc.locate_network_pkl(run_id, snapshot)
     if png_prefix is None:
         png_prefix = misc.get_id_string_for_network_pkl(network_pkl) + '-'
@@ -52,7 +52,6 @@ def generate_fake_interpolates(run_id, snapshot=None, grid_size=[1,1], num_pngs=
     print('Loading network from "%s"...' % network_pkl)
     G, D, Gs = misc.load_network_pkl(run_id, snapshot)
 
-    spread = 0.1
 
     result_subdir = misc.create_result_subdir(config.result_dir, config.run_desc)
     for png_idx in range(num_pngs):
