@@ -116,7 +116,8 @@ desc += '-fp32'; sched.max_minibatch_per_gpu = {256: 16, 512: 8, 1024: 4}
 #desc += '-noreset'; train.reset_opt_for_new_lod = False
 
 # Test much smaller net
-desc += '-micro'; G.fmap_max = 256; G.fmap_base = 8192 / 4
+desc += '-micro'; G.fmap_max = 256; G.fmap_base = 8192 / 4; D.fmap_max = 256; D.fmap_base = 8192 / 4
+desc += '-more'; sched.tick_kimg_dict = {4: 40, 8: 35, 16: 30, 32: 25, 64: 20, 128: 15, 256: 10, 512: 5, 1024: 5}
 
 # Special modes.
 #desc += '-BENCHMARK'; sched.lod_initial_resolution = 4; sched.lod_training_kimg = 3; sched.lod_transition_kimg = 3; train.total_kimg = (8*2+1)*3; sched.tick_kimg_base = 1; sched.tick_kimg_dict = {}; train.image_snapshot_ticks = 1000; train.network_snapshot_ticks = 1000
